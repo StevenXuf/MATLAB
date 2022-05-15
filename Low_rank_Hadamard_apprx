@@ -26,3 +26,32 @@ function [Utilde] = RLowApprox_Hadamard(A, k, c)
     Utilde = Uc * Uw;
     
 end
+
+
+% Parameters for the experiment
+m = 1000;
+n = 2^13;
+k = 5;
+
+% The different values of c
+cs = 5:20:800;
+% The results are stored here
+res = zeros(2, length(cs));
+
+for j = 1:length(cs)
+    % Construct A
+    M1 = randn(m, m);
+    M2 = randn(m, n);
+    A = M1 * M2;
+    
+    % Random algorithm and exact low rank approximation.
+    U = RLowApprox_Hadamard(A, k, cs(j));
+    [U_, S_, V_] = svds(A, k);
+    Ak = U_ * S_ * V_';
+    
+    res(1, j) = norm(A - Ak, 2) / norm(A, 2);
+    res(2, j) = norm(A - U * U' * A, 2) / norm(A, 2);
+    disp(j);
+end
+
+plot(res');
