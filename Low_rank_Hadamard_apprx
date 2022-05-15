@@ -1,0 +1,28 @@
+function [Utilde] = RLowApprox_Hadamard(A, k, c)
+    m = size(A, 1);
+    n = size(A, 2);
+    
+    % S: Random subsampling of identity matrix
+    id = eye(n);
+    its = randi([1, n], 1, c);
+    S = sqrt(n / c) * id(:, its);
+    
+    % D: random sign vector
+    dvec = 2 * binornd(1, 0.5, n, 1) - 1;
+    
+    % multiplication with random signs
+    cmat = fwht(S);
+    for i = 1:n
+        cmat(i, :) = cmat(i, :) * dvec(i);
+    end
+    cmat = 1 / sqrt(n) * A * cmat;
+    
+    % Uc: ONB of column space of C
+    [Uc, ~, ~] = svd(cmat);
+    
+    W = transpose(Uc) * A;
+    [Uw, ~, ~] = svds(W, k);
+    
+    Utilde = Uc * Uw;
+    
+end
